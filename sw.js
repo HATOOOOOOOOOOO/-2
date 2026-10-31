@@ -1,5 +1,5 @@
 // Offline cache: app files first, fonts cached as they are fetched.
-const CORE = 'kotobacho-core-v2';
+const CORE = 'kotobacho-core-v3';
 const FONTS = 'kotobacho-fonts-v1';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-512.png'];
 
@@ -18,14 +18,12 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin === location.origin) {
+    // Network first so updates appear straight away; the cache is the offline fallback.
     e.respondWith(
-      caches.match(req, { ignoreSearch: true }).then((hit) => {
-        const net = fetch(req).then((res) => {
-          if (res.ok) { const copy = res.clone(); caches.open(CORE).then((c) => c.put(req, copy)); }
-          return res;
-        }).catch(() => hit);
-        return hit || net;
-      })
+      fetch(req).then((res) => {
+        if (res.ok) { const copy = res.clone(); caches.open(CORE).then((c) => c.put(req, copy)); }
+        return res;
+      }).catch(() => caches.match(req, { ignoreSearch: true }))
     );
   } else if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
     e.respondWith(

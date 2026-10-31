@@ -148,7 +148,9 @@ ruby rt { font-size: 0.5em; color: var(--soft); letter-spacing: 0; }
     border-right: 1px solid var(--line);
   }
   .stage[data-phase="full"] .word { font-size: calc(min(36vw, 70vh) / var(--n)); }
-  .detail { padding: 0.9rem 0 5.5rem 1.6rem; }
+  /* Centre the details vertically, level with the word. The spacers collapse when the text is long, so it still scrolls. */
+  .detail { display: flex; flex-direction: column; padding: 4.5rem 0 4.5rem 1.6rem; }
+  .detail::before, .detail::after { content: ""; flex: 1 1 0; }
 }
 
 /* ---------- progress + status ---------- */
